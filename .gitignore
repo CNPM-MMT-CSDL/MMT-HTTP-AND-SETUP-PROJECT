@@ -1,0 +1,5 @@
+node_modules/
+app.log
+package-lock.json
+images/*.mp4
+images/palette.png
