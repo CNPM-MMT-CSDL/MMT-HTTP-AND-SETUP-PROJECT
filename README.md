@@ -291,3 +291,45 @@ Content-Type: application/json
 ![](images/network.png)
 
 ---
+
+# Logging Backend
+
+## 📦 Setup
+```js
+const winston = require('winston');
+
+// ======================= LOG =================
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(({ timestamp, level, message }) => {
+            return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+        })
+    ),
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: path.join(__dirname, 'app.log') })
+    ]
+});
+
+.....
+
+// ====================== LOG MIDDLEWARE ======================
+app.use((req, res, next) => {
+    logger.info(`==== API CALL ====`);
+    logger.info(`Time: ${new Date().toISOString()}`);
+    logger.info(`Method: ${req.method}`);
+    logger.info(`URL: ${req.originalUrl}`);
+    logger.info(`=================`);
+    next();
+});
+```
+
+## Ghi chú
+
+- `winston` hỗ trợ nhiều **transports**: console, file, HTTP, v.v.  
+- Log gồm **timestamp**, **level**, và **message**.  
+- Hữu ích cho **debug**, **monitoring**, và **audit trail**.
+
+![](images/Logging.png)

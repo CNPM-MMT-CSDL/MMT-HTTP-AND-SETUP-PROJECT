@@ -2,9 +2,24 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-
+const winston = require('winston');
 const app = express();
 const port = 3000;
+
+// ======================= LOG =================
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.printf(({ timestamp, level, message }) => {
+            return `[${timestamp}] ${level.toUpperCase()}: ${message}`;
+        })
+    ),
+    transports: [
+        new winston.transports.Console(),
+        new winston.transports.File({ filename: path.join(__dirname, 'app.log') })
+    ]
+});
 
 app.use(express.json());
 app.use(cors({
@@ -14,6 +29,15 @@ app.use(cors({
     credentials: true
 }));
 
+// ====================== LOG MIDDLEWARE ======================
+app.use((req, res, next) => {
+    logger.info(`==== API CALL ====`);
+    logger.info(`Time: ${new Date().toISOString()}`);
+    logger.info(`Method: ${req.method}`);
+    logger.info(`URL: ${req.originalUrl}`);
+    logger.info(`=================`);
+    next();
+});
 
 // Route
 app.get('/api/test', (req, res) => {
