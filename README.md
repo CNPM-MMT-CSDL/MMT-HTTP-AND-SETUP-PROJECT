@@ -385,3 +385,28 @@ CRUD là các thao tác cơ bản trên dữ liệu trong ứng dụng web và d
 - Delete (DELETE): Xóa dữ liệu trên server.
 
 ![](./images/CRUD.gif)
+
+## Swagger Setup and Postman
+
+### Swagger
+
+**Swagger** là một bộ công cụ mã nguồn mở giúp document, thiết kế và test API RESTful một cách trực quan.
+
+- Cho phép mô tả các endpoint, tham số, response, và header của API.
+
+- Cung cấp giao diện web (Swagger UI) để gọi thử API trực tiếp từ trình duyệt mà không cần frontend.
+
+- Thường được tích hợp trong Node.js/Express bằng swagger-ui-express và swagger-jsdoc.
+
+![](./images/Swagger.gif)
+
+### Postman
+- Postman là công cụ gọi và test API: GET, POST, PUT, DELETE
+- Hỗ trợ headers, body, authentication, variables
+- Ví dụ:
+    1. GET /api/users → xem danh sách user
+    2. POST /api/users với JSON body → tạo user mới
+    3. PUT /api/users/:id → cập nhật user
+    4. DELETE /api/users/:id → xóa user
+
+  ![](./images/Postman.gif)

@@ -7,6 +7,9 @@ const app = express();
 const port = 3000;
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const fs = require("fs");
 
 // ======================= LOG =================
 const logger = winston.createLogger({
@@ -71,6 +74,29 @@ app.use((req, res, next) => {
 });
 
 // ====================== AUTH ROUTES ======================
+/**
+ * @swagger
+ * /api/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Login success
+ *       401:
+ *         description: Invalid credentials
+ */
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     if (username === USER.username && password === USER.password) {
@@ -80,6 +106,16 @@ app.post('/api/login', (req, res) => {
     res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" });
 });
 
+/**
+ * @swagger
+ * /api/logout:
+ *   post:
+ *     summary: Logout user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logout success
+ */
 app.post('/api/logout', (req, res) => {
     req.session.destroy(() => {
         res.clearCookie('connect.sid');
@@ -87,18 +123,74 @@ app.post('/api/logout', (req, res) => {
     });
 });
 
-
-// ====================== SUBJECTS ROUTES ======================
+// ====================== SUBJECTS CRUD ======================
+/**
+ * @swagger
+ * /api/subjects:
+ *   get:
+ *     summary: Get all subjects
+ *     tags: [Subjects]
+ *     responses:
+ *       200:
+ *         description: List of subjects
+ */
 app.get('/api/subjects', requireLogin, (req, res) => {
     res.json(subjects);
 });
 
+/**
+ * @swagger
+ * /api/subjects:
+ *   post:
+ *     summary: Add a new subject
+ *     tags: [Subjects]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Subject created
+ */
 app.post('/api/subjects', requireLogin, (req, res) => {
     const newSub = { id: ID++, name: req.body.name };
     subjects.push(newSub);
     res.status(201).json(newSub);
 });
 
+/**
+ * @swagger
+ * /api/subjects/{id}:
+ *   put:
+ *     summary: Update a subject
+ *     tags: [Subjects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Subject ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Subject updated
+ *       404:
+ *         description: Subject not found
+ */
 app.put('/api/subjects/:id', requireLogin, (req, res) => {
     const id = parseInt(req.params.id);
     const idx = subjects.findIndex(s => s.id === id);
@@ -107,12 +199,51 @@ app.put('/api/subjects/:id', requireLogin, (req, res) => {
     res.json(subjects[idx]);
 });
 
+/**
+ * @swagger
+ * /api/subjects/{id}:
+ *   delete:
+ *     summary: Delete a subject
+ *     tags: [Subjects]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Subject ID
+ *     responses:
+ *       200:
+ *         description: Subject deleted
+ *       404:
+ *         description: Subject not found
+ */
 app.delete('/api/subjects/:id', requireLogin, (req, res) => {
     const id = parseInt(req.params.id);
     const idx = subjects.findIndex(s => s.id === id);
     if (idx === -1) return res.status(404).json({ error: 'Not found' });
     subjects = subjects.filter(s => s.id !== id);
     res.json({ success: true });
+});
+
+// ====================== SWAGGER SETUP ======================
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Subjects API",
+            version: "1.0.0",
+            description: "API for managing subjects with session login"
+        },
+        servers: [{ url: `http://localhost:${port}` }]
+    },
+    apis: [__filename] // dùng chính file này để lấy comment Swagger
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/swagger.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
 });
 
 // ====================== REACT BUILD (SPA) ======================
@@ -124,5 +255,6 @@ app.get(/.*/, (req, res) => {
 // ====================== START SERVER ======================
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
+    console.log(`Swagger UI: http://localhost:${port}/api-docs`);
 });
 
