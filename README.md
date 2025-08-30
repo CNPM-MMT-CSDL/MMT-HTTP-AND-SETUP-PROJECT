@@ -292,9 +292,9 @@ Content-Type: application/json
 
 ---
 
-# Logging Backend
+## Logging Backend
 
-## 📦 Setup
+### 📦 Setup
 ```js
 const winston = require('winston');
 
@@ -326,10 +326,62 @@ app.use((req, res, next) => {
 });
 ```
 
-## Ghi chú
+### Ghi chú
 
 - `winston` hỗ trợ nhiều **transports**: console, file, HTTP, v.v.  
 - Log gồm **timestamp**, **level**, và **message**.  
 - Hữu ích cho **debug**, **monitoring**, và **audit trail**.
 
 ![](images/Logging.png)
+
+## CRUD and Login Basic
+
+### Cập Nhật App.css App.js index.js trong commit `CRUD and Login Basic`
+
+### Cookie
+![](https://substackcdn.com/image/fetch/$s_!E2iU!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F9b3002be-d4f2-489c-99cd-f789012d76dc_1600x1173.png)
+
+- **Định nghĩa:** Cookie là một **file nhỏ** được server gửi về trình duyệt client và được lưu trữ trên máy client.  
+- **Mục đích:** Lưu trữ thông tin **state** giữa các request HTTP, ví dụ: user preferences, token xác thực, giỏ hàng…  
+- **Cách hoạt động:**
+  1. Client gửi request đầu tiên tới server.
+  2. Server trả về **Set-Cookie** header trong response.
+  3. Trình duyệt lưu cookie và gửi lại cookie này trong các request tiếp theo tới cùng server (**Cookie header**).  
+
+- **Ví dụ:**  
+
+```http
+# Server gửi cookie
+HTTP/1.1 200 OK
+Set-Cookie: sessionId=abc123; HttpOnly; Path=/; Max-Age=3600
+
+# Client gửi lại cookie trong request tiếp theo
+GET /dashboard HTTP/1.1
+Cookie: sessionId=abc123
+```
+
+### Session
+
+- **Định nghĩa:** Session là một **vùng lưu trữ tạm thời trên server** để giữ thông tin state của user.  
+- **Mục đích:** Giữ thông tin người dùng khi họ tương tác nhiều lần với server, ví dụ: login status, shopping cart…  
+- **Cách hoạt động:**
+  1. Khi user đăng nhập, server tạo **session object** và gán một **sessionId** duy nhất.
+  2. Server gửi sessionId về client dưới dạng cookie.
+  3. Client gửi cookie chứa sessionId trong các request tiếp theo.
+  4. Server tra cứu sessionId và lấy dữ liệu session tương ứng.
+
+![](./images/Cookie.gif)
+
+### CRUD – Create, Read, Update, Delete
+
+CRUD là các thao tác cơ bản trên dữ liệu trong ứng dụng web và database, thực hiện thông qua HTTP request:
+
+- Create (POST): Tạo mới dữ liệu trên server.
+
+- Read (GET): Lấy dữ liệu từ server.
+
+- Update (PUT / PATCH): Cập nhật dữ liệu đã tồn tại trên server.
+
+- Delete (DELETE): Xóa dữ liệu trên server.
+
+![](./images/CRUD.gif)
