@@ -410,3 +410,45 @@ CRUD là các thao tác cơ bản trên dữ liệu trong ứng dụng web và d
     4. DELETE /api/users/:id → xóa user
 
   ![](./images/Postman.gif)
+
+## Docker
+
+## Dockerfile
+```docker
+# 1. Base image
+FROM node:20
+
+# 2. Set working dir
+WORKDIR /usr/src/app
+
+# 3. Copy package files và cài đặt backend
+COPY package*.json ./
+RUN npm install
+
+# 4. Copy backend source
+COPY index.js ./
+
+# 5. Build frontend
+COPY frontend/package*.json ./frontend/
+RUN cd frontend && npm install
+COPY frontend ./frontend
+RUN cd frontend && npm run build
+
+# 6. Expose port
+EXPOSE 3000 3001
+```
+
+## Build
+```sh
+docker build .
+```
+
+## Run
+```sh
+docker run -it -p 3000:3000 -p 3001:3001 \
+  -v $(pwd):/usr/src/app \
+  -v $(pwd)/frontend:/usr/src/app/frontend \
+  devtools-app
+```
+
+  ![](./images/Docker.gif)
